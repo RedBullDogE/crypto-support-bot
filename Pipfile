@@ -9,6 +9,7 @@ verify_ssl = true
 pre-commit = "*"
 aiogram = "*"
 emoji = "*"
+python-binance = "*"
 
 [requires]
 python_version = "3.8"
