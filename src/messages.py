@@ -42,7 +42,7 @@ class CommonMessages:
         Data class with common messages
     """
     main_menu: str = "Hi! How can we help you?"
-    crypto_currencies_menu: str = "Select a cryptocurrency from the list for which to show information. If you need " \
+    currencies_menu: str = "Select a cryptocurrency from the list for which to show information. If you need " \
                                   "another currency, enter its code (example: for the Bitcoin, the code is BTC). you " \
                                   "can also find out the exchange rate of one currency to another using the command " \
                                   "{currency1->currency2}"

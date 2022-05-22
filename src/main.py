@@ -55,7 +55,6 @@ async def crypto_menu_cmds(message):
     """
         crypto menu commands
     """
-    print(message.text)
     if message.text == "Calculating":
         await message.reply(msg.common_messages.calculating_crypto)
         await Menus.calculating_crypto.set()
