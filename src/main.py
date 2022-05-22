@@ -12,7 +12,10 @@ from dataclasses import fields
 
 from bot_menus import Menus
 from crypto_currencies_handling import crypto_handling
-from currencies_exchanges import get_crypto_currency_info
+from currencies_exchanges import (
+    get_crypto_currency_info,
+    get_fiat_currency_info,
+)
 from fiat_currencies_handling import fiat_handling
 from messages import msg
 
@@ -56,18 +59,41 @@ async def crypto_menu_cmds(message):
         crypto menu commands
     """
     if message.text == "Calculating":
-        await message.reply(msg.common_messages.calculating_crypto)
-        await Menus.calculating_crypto.set()
+        await message.reply(msg.common_messages.calculating_currency)
+        await Menus.calculating_crypto_currency.set()
     else:
         await get_crypto_currency_info(message, calculating=False)
 
 
-@dp.message_handler(state=Menus.calculating_crypto, content_types=['text'])
+@dp.message_handler(state=Menus.calculating_crypto_currency, content_types=['text'])
 async def crypto_menu_cmds(message):
     """
         calculating crypto menu commands
     """
     await get_crypto_currency_info(message, calculating=True)
+
+
+@dp.message_handler(state=Menus.fiat_menu, content_types=['text'])
+async def fiat_menu_cmds(message):
+    """
+        fiat menu commands
+    """
+
+    if message.text == "Calculating":
+        await message.reply(msg.common_messages.calculating_currency)
+        await Menus.calculating_fiat_currency.set()
+    else:
+        await get_fiat_currency_info(message, calculating=False)
+
+
+@dp.message_handler(state=Menus.calculating_fiat_currency, content_types=['text'])
+async def fiat_menu_cmds(message):
+    """
+        calculating fiat menu commands
+    """
+
+    await get_fiat_currency_info(message, calculating=True)
+
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

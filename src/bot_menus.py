@@ -8,4 +8,5 @@ class Menus(StatesGroup):
     about_menu = State()
     fiat_menu = State()
     crypto_menu = State()
-    calculating_crypto = State()
+    calculating_fiat_currency = State()
+    calculating_crypto_currency = State()

@@ -23,6 +23,7 @@ class FiatCurrencies:
     usd_button: str = "USD"
     eur_button: str = "EUR"
     uah_button: str = "UAH"
+    calculating_btn: str = "Calculating"
 
 
 @dataclass(frozen=True)
@@ -43,11 +44,11 @@ class CommonMessages:
     """
     main_menu: str = "Hi! How can we help you?"
     currencies_menu: str = "Select a cryptocurrency from the list for which to show information. If you need " \
-                                  "another currency, enter its code (example: for the Bitcoin, the code is BTC). you " \
-                                  "can also find out the exchange rate of one currency to another using the command " \
-                                  "{currency1->currency2}"
-    calculating_crypto: str = "Enter the number of coins in currency1 and the currency in which to show the result " \
-                              "in the format {numbers currency1-> currency2}"
+                           "another currency, enter its code (example: for the Bitcoin, the code is BTC). you " \
+                           "can also find out the exchange rate of one currency to another using the command " \
+                           "{currency1->currency2}"
+    calculating_currency: str = "Enter the number of coins in currency1 and the currency in which to show the result " \
+                                "in the format {numbers currency1-> currency2}"
     invalid_currency: str = "Invalid request. Try again"
 
 
