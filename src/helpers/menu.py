@@ -19,7 +19,12 @@ def get_fiat_menu():
     for field in fields(msg.fiat_currencies):
         fiat_menu_buttons[field.name] = KeyboardButton(field.default)
 
-    return ReplyKeyboardMarkup(resize_keyboard=True).add(*fiat_menu_buttons.values())
+    cancel_btn = KeyboardButton(msg.common_messages.cancel_btn)
+    return (
+        ReplyKeyboardMarkup(resize_keyboard=True)
+        .add(*fiat_menu_buttons.values())
+        .row(cancel_btn)
+    )
 
 
 def get_crypto_menu():
@@ -27,7 +32,12 @@ def get_crypto_menu():
     for field in fields(msg.crypto_currencies):
         crypto_menu_buttons[field.name] = KeyboardButton(field.default)
 
-    return ReplyKeyboardMarkup(resize_keyboard=True).add(*crypto_menu_buttons.values())
+    cancel_btn = KeyboardButton(msg.common_messages.cancel_btn)
+    return (
+        ReplyKeyboardMarkup(resize_keyboard=True)
+        .add(*crypto_menu_buttons.values())
+        .row(cancel_btn)
+    )
 
 
 def get_admin_menu():

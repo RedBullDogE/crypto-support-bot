@@ -47,6 +47,7 @@ class CommonMessages:
     """
 
     main_menu: str = "Hi! How can we help you?"
+    cancel_btn: str = emojize("Return to Menu :left_arrow:")
     currencies_menu: str = (
         "Select a cryptocurrency from the list for which to show information. If you need "
         "another currency, enter its code (example: for the Bitcoin, the code is BTC). you "

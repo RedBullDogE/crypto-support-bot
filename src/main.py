@@ -10,7 +10,7 @@ from helpers.menu import (
     get_main_menu,
     get_support_menu,
 )
-from helpers.states import UserStates, AdminStates
+from helpers.states import States
 from currencies_exchanges import (
     get_crypto_currency_info,
     get_fiat_currency_info,
@@ -33,7 +33,7 @@ async def sync_admin(message):
         await cmd_start(message)
         return
 
-    await AdminStates.admin.set()
+    await States.admin.set()
 
 
 @dp.message_handler(state="*", commands=["start"])
@@ -43,7 +43,7 @@ async def cmd_start(message):
     """
 
     await message.reply(msg.common_messages.main_menu, reply_markup=get_main_menu())
-    await UserStates.main_menu.set()
+    await States.main_menu.set()
 
 
 @dp.message_handler(state="*", commands=["admin"])
@@ -52,15 +52,15 @@ async def cmd_admin(message):
     if db.is_admin_active(message.from_user.id):
         db.admin_mode(message.from_user.id, False)
         await message.reply(msg.admin_messages.admin_bye, reply_markup=get_main_menu())
-        await UserStates.main_menu.set()
+        await States.main_menu.set()
         return
 
     db.admin_mode(message.from_user.id, True)
-    await AdminStates.admin.set()
+    await States.admin.set()
     await message.reply(msg.admin_messages.admin_welcome, reply_markup=get_admin_menu())
 
 
-@dp.message_handler(state=AdminStates.admin)
+@dp.message_handler(state=States.admin)
 async def admin_support_handler(message):
     if not message.reply_to_message:
         return
@@ -73,7 +73,7 @@ async def admin_support_handler(message):
     await bot.send_message(user_id, message.text)
 
 
-@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.support_btn)
+@dp.message_handler(state=States.main_menu, text=msg.main_menu.support_btn)
 async def cmd_support(message):
     try:
         db.add_user_support(message.from_user.id)
@@ -81,7 +81,7 @@ async def cmd_support(message):
         await message.reply(msg.common_messages.no_active_admins)
         return
 
-    await UserStates.support_menu.set()
+    await States.support_menu.set()
     await message.reply(
         msg.common_messages.support_welcome, reply_markup=get_support_menu()
     )
@@ -93,11 +93,11 @@ async def cancel_handler(message, state):
     current_state = await state.get_state()
 
     # exit if user is in main menu
-    if current_state is None or current_state == UserStates.main_menu.state:
+    if current_state is None or current_state == States.main_menu.state:
         return
 
     # remove support record from db
-    if current_state == UserStates.support_menu.state:
+    if current_state == States.support_menu.state:
         db.remove_user_support(message.from_user.id)
         db.remove_target_user(message.from_user.id)
 
@@ -105,7 +105,7 @@ async def cancel_handler(message, state):
     await cmd_start(message)
 
 
-@dp.message_handler(state=UserStates.support_menu, content_types=["text"])
+@dp.message_handler(state=States.support_menu, content_types=["text"])
 async def support_handler(message):
     admin_id = db.get_user_admin(message.from_user.id)
 
@@ -120,7 +120,7 @@ async def support_handler(message):
     db.add_target_user(admin_id, forward.message_id, message.from_user.id)
 
 
-@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.fiat_btn)
+@dp.message_handler(state=States.main_menu, text=msg.main_menu.fiat_btn)
 async def fiat_handler(message):
     """
     fiat currencies handling
@@ -129,10 +129,10 @@ async def fiat_handler(message):
     await message.reply(
         msg.common_messages.currencies_menu, reply_markup=get_fiat_menu()
     )
-    await UserStates.fiat_menu.set()
+    await States.fiat_menu.set()
 
 
-@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.crypto_btn)
+@dp.message_handler(state=States.main_menu, text=msg.main_menu.crypto_btn)
 async def crypto_handler(message):
     """
     cryptocurrencies handling
@@ -141,24 +141,24 @@ async def crypto_handler(message):
     await message.reply(
         msg.common_messages.currencies_menu, reply_markup=get_crypto_menu()
     )
-    await UserStates.crypto_menu.set()
+    await States.crypto_menu.set()
 
 
-@dp.message_handler(state=UserStates.crypto_menu, content_types=["text"])
-async def crypto_menu_cmds(message):
+@dp.message_handler(state=States.crypto_menu, content_types=["text"])
+async def crypto_menu_cmds(message, state):
     """
     crypto menu commands
     """
-    if message.text == "Calculating":
+    if message.text == msg.crypto_currencies.calculating_btn:
         await message.reply(msg.common_messages.calculating_currency)
-        await UserStates.calculating_crypto_currency.set()
+        await States.calculating_crypto_currency.set()
+    elif message.text == msg.common_messages.cancel_btn:
+        await cancel_handler(message, state)
     else:
         await get_crypto_currency_info(message, calculating=False)
 
 
-@dp.message_handler(
-    state=UserStates.calculating_crypto_currency, content_types=["text"]
-)
+@dp.message_handler(state=States.calculating_crypto_currency, content_types=["text"])
 async def calculating_crypto_cmds(message):
     """
     calculating crypto menu commands
@@ -166,20 +166,22 @@ async def calculating_crypto_cmds(message):
     await get_crypto_currency_info(message, calculating=True)
 
 
-@dp.message_handler(state=UserStates.fiat_menu, content_types=["text"])
-async def fiat_menu_cmds(message):
+@dp.message_handler(state=States.fiat_menu, content_types=["text"])
+async def fiat_menu_cmds(message, state):
     """
     fiat menu commands
     """
 
-    if message.text == "Calculating":
+    if message.text == msg.fiat_currencies.calculating_btn:
         await message.reply(msg.common_messages.calculating_currency)
-        await UserStates.calculating_fiat_currency.set()
+        await States.calculating_fiat_currency.set()
+    elif message.text == msg.common_messages.cancel_btn:
+        await cancel_handler(message, state)
     else:
         await get_fiat_currency_info(message, calculating=False)
 
 
-@dp.message_handler(state=UserStates.calculating_fiat_currency, content_types=["text"])
+@dp.message_handler(state=States.calculating_fiat_currency, content_types=["text"])
 async def calculating_fiat_menu_cmds(message):
     """
     calculating fiat menu commands
