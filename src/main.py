@@ -60,6 +60,16 @@ async def cmd_admin(message):
     await message.reply(msg.admin_messages.admin_welcome, reply_markup=get_admin_menu())
 
 
+@dp.message_handler(state=States.main_menu, text=msg.main_menu.about_btn)
+async def cmd_about(message):
+    await message.reply(msg.common_messages.about_msg)
+
+
+@dp.message_handler(state=States.main_menu, text=msg.main_menu.help_btn)
+async def cmd_help(message):
+    await message.reply(msg.common_messages.help_msg)
+
+
 @dp.message_handler(state=States.admin)
 async def admin_support_handler(message):
     if not message.reply_to_message:
