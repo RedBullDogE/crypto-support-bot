@@ -5,6 +5,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from helpers.exceptions import NoAdmins
 from helpers.menu import (
     get_admin_menu,
+    get_calculation_menu,
     get_crypto_menu,
     get_fiat_menu,
     get_main_menu,
@@ -160,7 +161,10 @@ async def crypto_menu_cmds(message, state):
     crypto menu commands
     """
     if message.text == msg.crypto_currencies.calculating_btn:
-        await message.reply(msg.common_messages.calculating_currency)
+        await message.reply(
+            msg.common_messages.calculating_currency,
+            reply_markup=get_calculation_menu(),
+        )
         await States.calculating_crypto_currency.set()
     elif message.text == msg.common_messages.cancel_btn:
         await cancel_handler(message, state)
@@ -169,10 +173,15 @@ async def crypto_menu_cmds(message, state):
 
 
 @dp.message_handler(state=States.calculating_crypto_currency, content_types=["text"])
-async def calculating_crypto_cmds(message):
+async def calculating_crypto_cmds(message, state):
     """
     calculating crypto menu commands
     """
+
+    if message.text == msg.common_messages.cancel_btn:
+        await cancel_handler(message, state)
+        return
+
     await get_crypto_currency_info(message, calculating=True)
 
 
@@ -183,7 +192,10 @@ async def fiat_menu_cmds(message, state):
     """
 
     if message.text == msg.fiat_currencies.calculating_btn:
-        await message.reply(msg.common_messages.calculating_currency)
+        await message.reply(
+            msg.common_messages.calculating_currency,
+            reply_markup=get_calculation_menu(),
+        )
         await States.calculating_fiat_currency.set()
     elif message.text == msg.common_messages.cancel_btn:
         await cancel_handler(message, state)
@@ -192,10 +204,14 @@ async def fiat_menu_cmds(message, state):
 
 
 @dp.message_handler(state=States.calculating_fiat_currency, content_types=["text"])
-async def calculating_fiat_menu_cmds(message):
+async def calculating_fiat_menu_cmds(message, state):
     """
     calculating fiat menu commands
     """
+
+    if message.text == msg.common_messages.cancel_btn:
+        await cancel_handler(message, state)
+        return
 
     await get_fiat_currency_info(message, calculating=True)
 

@@ -40,6 +40,11 @@ def get_crypto_menu():
     )
 
 
+def get_calculation_menu():
+    cancel_btn = KeyboardButton(msg.common_messages.cancel_btn)
+    return ReplyKeyboardMarkup(resize_keyboard=True).add(cancel_btn)
+
+
 def get_admin_menu():
     return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("/admin"))
 
