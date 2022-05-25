@@ -6,7 +6,7 @@ from aiogram.types import (
 )
 from dataclasses import fields
 
-from bot_menus import Menus
+from states import UserStates
 from messages import msg
 
 
@@ -22,4 +22,4 @@ async def fiat_handling(message):
     menu = ReplyKeyboardMarkup(resize_keyboard=True).add(*fiat_menu_buttons.values())
 
     await message.reply(msg.common_messages.currencies_menu, reply_markup=menu)
-    await Menus.fiat_menu.set()
+    await UserStates.fiat_menu.set()

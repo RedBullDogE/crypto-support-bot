@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class Menus(StatesGroup):
+class UserStates(StatesGroup):
     main_menu = State()
     help_menu = State()
     support_menu = State()
@@ -10,3 +10,7 @@ class Menus(StatesGroup):
     crypto_menu = State()
     calculating_fiat_currency = State()
     calculating_crypto_currency = State()
+
+
+class AdminStates(StatesGroup):
+    admin = State()
