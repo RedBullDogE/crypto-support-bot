@@ -1,22 +1,17 @@
 import os
-from dataclasses import fields
 
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.dispatcher import FSMContext
+from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.types import (
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-)
-from exceptions import NoAdmins
-from states import UserStates, AdminStates
+from helpers.exceptions import NoAdmins
+from helpers.menu import get_admin_menu, get_main_menu, get_support_menu
+from helpers.states import UserStates, AdminStates
 from crypto_currencies_handling import crypto_handling
 from currencies_exchanges import (
     get_crypto_currency_info,
     get_fiat_currency_info,
 )
 from fiat_currencies_handling import fiat_handling
-from messages import msg
+from helpers.messages import msg
 from storage import Storage
 
 API_TOKEN = os.getenv("API_TOKEN")
@@ -43,18 +38,12 @@ async def cmd_start(message):
     Message handler for /start command. Initialize bot menu.
     """
 
-    main_menu_buttons = {}
-    for field in fields(msg.main_menu):
-        main_menu_buttons[field.name] = KeyboardButton(field.default)
-
-    menu = ReplyKeyboardMarkup(resize_keyboard=True).add(*main_menu_buttons.values())
-
-    await message.reply(msg.common_messages.main_menu, reply_markup=menu)
+    await message.reply(msg.common_messages.main_menu, reply_markup=get_main_menu())
     await UserStates.main_menu.set()
 
 
 @dp.message_handler(state="*", commands=["admin"])
-async def cmd_admin(message: types.Message, state: FSMContext):
+async def cmd_admin(message):
 
     if db.is_admin_active(message.from_user.id):
         db.admin_mode(message.from_user.id, False)
@@ -62,12 +51,9 @@ async def cmd_admin(message: types.Message, state: FSMContext):
         await UserStates.main_menu.set()
         return
 
-    cancel_btn = KeyboardButton("/cancel")
-    menu = ReplyKeyboardMarkup(resize_keyboard=True).add(cancel_btn)
-
     db.admin_mode(message.from_user.id, True)
     await AdminStates.admin.set()
-    await message.reply(msg.admin_messages.admin_welcome, reply_markup=menu)
+    await message.reply(msg.admin_messages.admin_welcome, reply_markup=get_admin_menu())
 
 
 @dp.message_handler(state=AdminStates.admin)
@@ -94,11 +80,10 @@ async def cmd_support(message):
         await message.reply(msg.common_messages.no_active_admins)
         return
 
-    cancel_btn = KeyboardButton("/cancel")
-    menu = ReplyKeyboardMarkup(resize_keyboard=True).add(cancel_btn)
-
     await UserStates.support_menu.set()
-    await message.reply(msg.common_messages.support_welcome, reply_markup=menu)
+    await message.reply(
+        msg.common_messages.support_welcome, reply_markup=get_support_menu()
+    )
 
 
 @dp.message_handler(state="*", commands=["cancel"])
@@ -158,7 +143,9 @@ async def crypto_menu_cmds(message):
         await get_crypto_currency_info(message, calculating=False)
 
 
-@dp.message_handler(state=UserStates.calculating_crypto, content_types=["text"])
+@dp.message_handler(
+    state=UserStates.calculating_crypto_currency, content_types=["text"]
+)
 async def calculating_crypto_cmds(message):
     """
     calculating crypto menu commands
@@ -166,10 +153,10 @@ async def calculating_crypto_cmds(message):
     await get_crypto_currency_info(message, calculating=True)
 
 
-@dp.message_handler(state=UserStates.fiat_menu, content_types=['text'])
+@dp.message_handler(state=UserStates.fiat_menu, content_types=["text"])
 async def fiat_menu_cmds(message):
     """
-        fiat menu commands
+    fiat menu commands
     """
 
     if message.text == "Calculating":
@@ -179,10 +166,10 @@ async def fiat_menu_cmds(message):
         await get_fiat_currency_info(message, calculating=False)
 
 
-@dp.message_handler(state=UserStates.calculating_fiat_currency, content_types=['text'])
+@dp.message_handler(state=UserStates.calculating_fiat_currency, content_types=["text"])
 async def calculating_fiat_menu_cmds(message):
     """
-        calculating fiat menu commands
+    calculating fiat menu commands
     """
 
     await get_fiat_currency_info(message, calculating=True)

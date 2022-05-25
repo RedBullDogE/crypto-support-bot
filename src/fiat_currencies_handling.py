@@ -6,8 +6,8 @@ from aiogram.types import (
 )
 from dataclasses import fields
 
-from states import UserStates
-from messages import msg
+from helpers.states import UserStates
+from helpers.messages import msg
 
 
 async def fiat_handling(message):

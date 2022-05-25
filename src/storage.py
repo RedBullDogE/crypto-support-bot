@@ -3,7 +3,7 @@ import os
 from rethinkdb import RethinkDB
 from functools import wraps
 
-from exceptions import NoAdmins
+from helpers.exceptions import NoAdmins
 
 DB_HOST = os.getenv("RETHINKDB_HOST", "localhost")
 DB_PORT = os.getenv("RETHINKDB_PORT", 28015)
@@ -81,14 +81,14 @@ class Storage:
                     self.message_table, primary_key="id"
                 ).run(conn)
 
-    def add_admin(self, user_id: int, chat_id=None):
+    def add_admin(self, user_id: int):
         elem = self.r.table(self.admin_table).get(user_id).run()
 
         # update if such admin already exists
         if elem:
             return False
 
-        new = {"admin_id": user_id, "chat_id": chat_id, "users": 0, "active": False}
+        new = {"admin_id": user_id, "users": 0, "active": False}
         res = self.r.table(self.admin_table).insert(new).run()
 
         return res["inserted"] == 1
@@ -201,3 +201,5 @@ class Storage:
 
 if __name__ == "__main__":
     s = Storage()
+
+    s.add_admin(69526339)
