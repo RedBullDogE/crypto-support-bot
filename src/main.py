@@ -3,14 +3,18 @@ import os
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from helpers.exceptions import NoAdmins
-from helpers.menu import get_admin_menu, get_main_menu, get_support_menu
+from helpers.menu import (
+    get_admin_menu,
+    get_crypto_menu,
+    get_fiat_menu,
+    get_main_menu,
+    get_support_menu,
+)
 from helpers.states import UserStates, AdminStates
-from crypto_currencies_handling import crypto_handling
 from currencies_exchanges import (
     get_crypto_currency_info,
     get_fiat_currency_info,
 )
-from fiat_currencies_handling import fiat_handling
 from helpers.messages import msg
 from storage import Storage
 
@@ -69,11 +73,8 @@ async def admin_support_handler(message):
     await bot.send_message(user_id, message.text)
 
 
-@dp.message_handler(state=UserStates.main_menu, content_types=["text"])
+@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.support_btn)
 async def cmd_support(message):
-    if message.text != msg.main_menu.support_btn:
-        return
-
     try:
         db.add_user_support(message.from_user.id)
     except NoAdmins:
@@ -119,16 +120,28 @@ async def support_handler(message):
     db.add_target_user(admin_id, forward.message_id, message.from_user.id)
 
 
-@dp.message_handler(state=UserStates.main_menu, content_types=["text"])
-async def cmds_handler(message):
+@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.fiat_btn)
+async def fiat_handler(message):
     """
-    all message handler
+    fiat currencies handling
     """
 
-    if message.text == msg.main_menu.fiat_btn:
-        await fiat_handling(message)
-    if message.text == msg.main_menu.crypto_btn:
-        await crypto_handling(message)
+    await message.reply(
+        msg.common_messages.currencies_menu, reply_markup=get_fiat_menu()
+    )
+    await UserStates.fiat_menu.set()
+
+
+@dp.message_handler(state=UserStates.main_menu, text=msg.main_menu.crypto_btn)
+async def crypto_handler(message):
+    """
+    cryptocurrencies handling
+    """
+
+    await message.reply(
+        msg.common_messages.currencies_menu, reply_markup=get_crypto_menu()
+    )
+    await UserStates.crypto_menu.set()
 
 
 @dp.message_handler(state=UserStates.crypto_menu, content_types=["text"])

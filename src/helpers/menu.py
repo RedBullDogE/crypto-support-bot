@@ -14,6 +14,22 @@ def get_main_menu():
     return ReplyKeyboardMarkup(resize_keyboard=True).add(*main_menu_buttons.values())
 
 
+def get_fiat_menu():
+    fiat_menu_buttons = {}
+    for field in fields(msg.fiat_currencies):
+        fiat_menu_buttons[field.name] = KeyboardButton(field.default)
+
+    return ReplyKeyboardMarkup(resize_keyboard=True).add(*fiat_menu_buttons.values())
+
+
+def get_crypto_menu():
+    crypto_menu_buttons = {}
+    for field in fields(msg.crypto_currencies):
+        crypto_menu_buttons[field.name] = KeyboardButton(field.default)
+
+    return ReplyKeyboardMarkup(resize_keyboard=True).add(*crypto_menu_buttons.values())
+
+
 def get_admin_menu():
     return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("/admin"))
 
